@@ -54,7 +54,9 @@ if (args.Contains("--migrate-only"))
 if (args.Contains("--ingest-fixtures"))
 {
     var summary = await app.Services.GetRequiredService<IngestionService>().RunAsync(
-        FxBitemporal.Core.RateSources.Fixture, DateOnly.MinValue, DateOnly.MaxValue, "ingest:fixture", CancellationToken.None);
+        FxBitemporal.Core.RateSources.Fixture,
+        FxBitemporal.Sources.Fixtures.RecordedBulletinSource.Dates[0], FxBitemporal.Sources.Fixtures.RecordedBulletinSource.Dates[^1],
+        "ingest:fixture", CancellationToken.None);
     Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(summary, System.Text.Json.JsonSerializerOptions.Web));
     return 0;
 }

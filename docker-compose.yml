@@ -1,0 +1,105 @@
+# `docker compose up` runs the whole demo with zero manual steps:
+#   postgres  -> initialised with least-privilege roles (deploy/postgres/init)
+#   migrator  -> api image, `--migrate-only`, connects as the schema owner fx_migrator, exits
+#   ingest    -> api image, `--ingest-fixtures`, records the 28 real TCMB bulletins as fx_app, exits (idempotent)
+#   api       -> the service, connects as fx_app
+#   demo      -> values three FX positions, records a correction, then proves that the report as of the earlier
+#                known time is byte-identical and the report as of now is not; exits 0 only if every check holds
+# Optional: `docker compose --profile observability up` adds the Aspire dashboard as an OTLP backend
+# (set OTEL_EXPORTER_OTLP_ENDPOINT=http://aspire-dashboard:18889, see .env.example).
+name: fx-bitemporal
+
+x-api-image: &api-image
+  image: fx-bitemporal-api:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+
+x-app-connection: &app-connection
+  ConnectionStrings__Default: Host=postgres;Database=fxbitemporal;Username=fx_app;Password=${APP_PASSWORD:-app-dev-only};Timeout=5
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: fxbitemporal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres-dev-only}
+      MIGRATOR_PASSWORD: ${MIGRATOR_PASSWORD:-migrator-dev-only}
+      APP_PASSWORD: ${APP_PASSWORD:-app-dev-only}
+    ports:
+      # Loopback only: lets `dotnet run` (appsettings.Development.json) and psql use this database.
+      - "127.0.0.1:${POSTGRES_PORT:-58743}:5432"
+    volumes:
+      - ./deploy/postgres/init:/docker-entrypoint-initdb.d:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fxbitemporal"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrator:
+    <<: *api-image
+    command: ["--migrate-only"]
+    environment:
+      ConnectionStrings__Default: Host=postgres;Database=fxbitemporal;Username=fx_migrator;Password=${MIGRATOR_PASSWORD:-migrator-dev-only}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  ingest:
+    <<: *api-image
+    command: ["--ingest-fixtures"]
+    environment:
+      <<: *app-connection
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    restart: "no"
+
+  api:
+    <<: *api-image
+    ports:
+      - "127.0.0.1:${API_PORT:-58744}:8080"
+    environment:
+      <<: *app-connection
+      Admin__Key: ${ADMIN_KEY:-admin-dev-only}
+      OpenApi__Enabled: "true"
+      Sources__EvdsApiKey: ${EVDS_API_KEY:-}
+      OTEL_SERVICE_NAME: fx-bitemporal
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    # No container HEALTHCHECK: the chiseled image has no shell or curl. Probe /health/live and /health/ready over HTTP.
+    restart: unless-stopped
+
+  demo:
+    image: alpine:3.24.3
+    command: ["sh", "/demo/demo.sh"]
+    environment:
+      API_URL: http://api:8080
+      ADMIN_KEY: ${ADMIN_KEY:-admin-dev-only}
+    volumes:
+      - ./deploy/demo:/demo:ro
+    depends_on:
+      ingest:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+    restart: "no"
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:13.6
+    profiles: ["observability"]
+    environment:
+      # Local-only convenience; never expose an unsecured dashboard beyond localhost.
+      DASHBOARD__FRONTEND__AUTHMODE: Unsecured
+      DASHBOARD__OTLP__AUTHMODE: Unsecured
+    ports:
+      - "127.0.0.1:58745:18888"
+
+volumes:
+  pgdata:

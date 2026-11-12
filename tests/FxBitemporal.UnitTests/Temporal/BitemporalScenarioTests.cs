@@ -137,4 +137,43 @@ public sealed class BitemporalScenarioTests
         AssertionPlanner.Plan([piece], new ValidPeriod(D(10, 5), D(10, 8)), fact).IsNoOp.Should().BeFalse();
         AssertionPlanner.Plan([piece], new ValidPeriod(D(10, 5), D(10, 6)), fact).IsNoOp.Should().BeTrue();
     }
+
+    [Fact]
+    public void A_re_ingested_bulletin_does_not_undo_a_correction()
+    {
+        Record(D(10, 30), 50.10m);
+        Record(D(10, 30), 50.15m, RateSources.Correction, "synthetic: published value was wrong");
+        var count = _store.All.Count;
+
+        Record(D(10, 30), 50.10m).IsNoOp.Should().BeTrue("the feed still publishes the original value");
+        _store.All.Should().HaveCount(count);
+        _store.AsOf(Usd, D(10, 31), Next())!.Value.Should().Be(50.15m);
+
+        Record(D(10, 30), 50.10m, RateSources.Correction, "synthetic: correction withdrawn").IsNoOp.Should().BeFalse();
+        _store.AsOf(Usd, D(10, 31), Next())!.Value.Should().Be(50.10m);
+    }
+
+    [Fact]
+    public void A_correction_only_shields_its_own_bulletin_date()
+    {
+        Record(D(10, 30), 50.10m);
+        Record(D(10, 30), 50.15m, RateSources.Correction, "synthetic: published value was wrong");
+
+        Record(D(11, 2), 50.20m).IsNoOp.Should().BeFalse();
+        _store.AsOf(Usd, D(11, 2), Next())!.Value.Should().Be(50.20m);
+        _store.AsOf(Usd, D(10, 31), Next())!.Value.Should().Be(50.15m);
+    }
+
+    [Fact]
+    public void The_batch_planner_applies_the_same_correction_precedence()
+    {
+        var store = new InMemoryRateStore();
+        store.Record(new Observation(Usd, D(10, 30), 50.10m, 1, RateSources.Fixture), Next());
+        store.Record(new Observation(Usd, D(10, 30), 50.15m, 1, RateSources.Correction, "synthetic"), Next());
+        var count = store.All.Count;
+
+        store.RecordBatch([new Observation(Usd, D(10, 30), 50.10m, 1, RateSources.TcmbArchive)], Next());
+
+        store.All.Should().HaveCount(count);
+    }
 }

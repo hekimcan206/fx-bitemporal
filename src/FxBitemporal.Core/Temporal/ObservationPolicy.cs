@@ -33,4 +33,16 @@ public static class ObservationPolicy
 
         return next;
     }
+
+    /// <summary>
+    /// A feed observation (archive, EVDS, fixture) for a bulletin date whose currently believed value is a correction
+    /// does not overturn the correction. Otherwise the next scheduled re-ingest would silently undo every correction,
+    /// because the feed keeps publishing the original value. Undoing a correction is itself a correction, with a reason.
+    /// </summary>
+    public static bool IsOverriddenByCorrection(IEnumerable<RateVersion> current, Observation observation)
+    {
+        ArgumentNullException.ThrowIfNull(observation);
+        return observation.Source != RateSources.Correction && current.Any(v =>
+            v.Known.IsCurrent && v.Fact.ObservedOn == observation.Date && v.Fact.Source == RateSources.Correction);
+    }
 }

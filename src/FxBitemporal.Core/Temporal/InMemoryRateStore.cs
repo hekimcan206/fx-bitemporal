@@ -24,10 +24,34 @@ public sealed class InMemoryRateStore
         }
 
         var current = _versions.Where(v => v.Series == observation.Series && v.Known.IsCurrent).ToList();
+        if (ObservationPolicy.IsOverriddenByCorrection(current, observation))
+        {
+            return AssertionPlan.NoOp;
+        }
+
         var period = ObservationPolicy.PeriodFor(observation.Date, ObservationPolicy.NextStart(current, observation.Date));
         var plan = AssertionPlanner.Plan(current, period, observation.ToFact());
         Apply(observation.Series, plan, at);
         return plan;
+    }
+
+    /// <summary>Records several observations as of one instant (one bulletin), with the same net-effect planning as the
+    /// PostgreSQL store's batch write.</summary>
+    public void RecordBatch(IReadOnlyList<Observation> observations, DateTimeOffset at)
+    {
+        ArgumentNullException.ThrowIfNull(observations);
+        if (at <= _lastChange)
+        {
+            throw new ArgumentOutOfRangeException(nameof(at), "Known time must strictly increase across changes.");
+        }
+
+        foreach (var group in observations.OrderBy(o => o.Date).GroupBy(o => o.Series))
+        {
+            var current = _versions.Where(v => v.Series == group.Key && v.Known.IsCurrent).ToList();
+            Apply(group.Key, BatchPlanner.Plan(current, group), at);
+        }
+
+        _lastChange = at;
     }
 
     public void Apply(SeriesKey series, AssertionPlan plan, DateTimeOffset at)

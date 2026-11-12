@@ -151,6 +151,37 @@ public sealed class BitemporalPropertyTests
         return finalPerKey.All(o => store.Record(o, At(i++)).IsNoOp) && store.All.Count == count;
     }
 
+    /// <summary>Writing a whole history in one transaction (one instant) ends in the same current view as writing it
+    /// one observation at a time.</summary>
+    [Property(Arbitrary = [typeof(BitemporalPropertyTests)], MaxTest = 300)]
+    public bool A_batch_at_one_instant_equals_sequential_writes(HistoryEntry[] steps)
+    {
+        var sequential = Run(steps);
+        var batched = new InMemoryRateStore();
+        batched.RecordBatch([.. steps.Select(ToObservation)], At(0));
+        var now = At(steps.Length + 1);
+
+        return Series.All(series => Probe().All(date =>
+            Equals(sequential.AsOf(series, date, now)?.Fact, batched.AsOf(series, date, now)?.Fact)));
+    }
+
+    /// <summary>A batch on top of existing history: also equal, and still free of bitemporal overlaps.</summary>
+    [Property(Arbitrary = [typeof(BitemporalPropertyTests)], MaxTest = 300)]
+    public bool A_batch_on_top_of_history_equals_sequential_writes(HistoryEntry[] first, HistoryEntry[] second)
+    {
+        var sequential = Run([.. first, .. second]);
+        var batched = Run(first);
+        batched.RecordBatch([.. second.Select(ToObservation)], At(first.Length + 1));
+        var now = At(first.Length + second.Length + 2);
+
+        var sameView = Series.All(series => Probe().All(date =>
+            Equals(sequential.AsOf(series, date, now)?.Fact, batched.AsOf(series, date, now)?.Fact)));
+        var versions = batched.All;
+        var noOverlap = !versions.Any(a => versions.Any(b =>
+            a.Id != b.Id && a.Series == b.Series && a.Valid.Overlaps(b.Valid) && KnownOverlap(a.Known, b.Known)));
+        return sameView && noOverlap;
+    }
+
     private static InMemoryRateStore Run(HistoryEntry[] steps)
     {
         var store = new InMemoryRateStore();

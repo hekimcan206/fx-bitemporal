@@ -2,4 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/FxBitemporal.Core/FxBitemporal.Core.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FxBitemporal.UnitTests/FxBitemporal.UnitTests.csproj" />
+  </Folder>
 </Solution>

@@ -34,7 +34,7 @@ public sealed class EvdsSource(HttpClient http, string apiKey, IReadOnlyCollecti
     {
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            throw new RateSourceException("EVDS needs an API key (Sources:Evds:ApiKey). Use the tcmb-archive or fixture source without one.");
+            throw new RateSourceException("EVDS needs an API key (Sources:EvdsApiKey). Use the tcmb-archive or fixture source without one.");
         }
 
         if (series.Count == 0)

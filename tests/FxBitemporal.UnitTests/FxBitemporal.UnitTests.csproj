@@ -15,10 +15,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FxBitemporal.Core\FxBitemporal.Core.csproj" />
+    <ProjectReference Include="..\..\src\FxBitemporal.Sources\FxBitemporal.Sources.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Golden\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

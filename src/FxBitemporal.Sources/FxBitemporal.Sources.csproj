@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>FxBitemporal.Sources</RootNamespace>
+    <Description>TCMB rate sources: the public daily XML bulletin archive, the EVDS web service, and recorded fixtures.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FxBitemporal.Core\FxBitemporal.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Real TCMB bulletins recorded from the public archive: the offline demo and the golden tests replay them. -->
+    <EmbeddedResource Include="..\..\fixtures\tcmb\*.xml" LogicalName="fixtures/tcmb/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FxBitemporal.UnitTests" />
+  </ItemGroup>
+
+</Project>

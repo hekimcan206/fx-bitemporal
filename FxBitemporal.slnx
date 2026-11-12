@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/FxBitemporal.Core/FxBitemporal.Core.csproj" />
+    <Project Path="src/FxBitemporal.Sources/FxBitemporal.Sources.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FxBitemporal.UnitTests/FxBitemporal.UnitTests.csproj" />

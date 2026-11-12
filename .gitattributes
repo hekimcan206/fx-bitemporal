@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.cs     text diff=csharp
+*.csproj text
+*.slnx   text
+*.sln    text eol=crlf
+*.ps1    text eol=crlf
+*.png    binary
+*.gif    binary
+# Recorded TCMB bulletins are kept byte for byte as downloaded (CRLF, UTF-8): golden tests hash them.
+fixtures/** -text

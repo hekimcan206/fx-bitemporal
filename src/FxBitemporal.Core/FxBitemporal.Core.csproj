@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>FxBitemporal.Core</RootNamespace>
+    <Description>Bitemporal FX-rate model: valid time (when a rate applies) and known time (when the system recorded it).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FxBitemporal.UnitTests" />
+  </ItemGroup>
+
+</Project>

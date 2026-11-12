@@ -1,0 +1,28 @@
+{
+  "scenario": "http",
+  "measuredAt": "2026-11-12T11:46:26.7733281+00:00",
+  "environment": {
+    "os": "Microsoft Windows 10.0.26200",
+    "runtime": ".NET 10.0.12",
+    "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "logicalCores": 16
+  },
+  "result": {
+    "getRateAsOfNow": {
+      "Samples": 1000,
+      "MedianMs": 4.921,
+      "P95Ms": 26.297,
+      "P99Ms": 54.712,
+      "MinMs": 2.105,
+      "MaxMs": 336.582
+    },
+    "postRevaluationReport3Positions": {
+      "Samples": 1000,
+      "MedianMs": 4.068,
+      "P95Ms": 17.108,
+      "P99Ms": 37.903,
+      "MinMs": 2.059,
+      "MaxMs": 134.546
+    }
+  }
+}

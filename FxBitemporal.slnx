@@ -4,6 +4,9 @@
     <Project Path="src/FxBitemporal.Sources/FxBitemporal.Sources.csproj" />
     <Project Path="src/FxBitemporal.Api/FxBitemporal.Api.csproj" />
   </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/FxBitemporal.Benchmarks/FxBitemporal.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FxBitemporal.UnitTests/FxBitemporal.UnitTests.csproj" />
     <Project Path="tests/FxBitemporal.IntegrationTests/FxBitemporal.IntegrationTests.csproj" />

@@ -1,0 +1,133 @@
+{
+  "scenario": "store",
+  "measuredAt": "2026-11-12T11:51:59.8402076+00:00",
+  "environment": {
+    "os": "Microsoft Windows 10.0.26200",
+    "runtime": ".NET 10.0.12",
+    "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "logicalCores": 16
+  },
+  "result": {
+    "dataset": {
+      "series": 20,
+      "bulletins": 520,
+      "corrections": 117,
+      "versions": 20897,
+      "tableBytes": 3375104,
+      "indexBytes": 4284416
+    },
+    "ingest": {
+      "totalSeconds": 40.12,
+      "bulletinWrite": {
+        "Samples": 520,
+        "MedianMs": 65.598,
+        "P95Ms": 119.334,
+        "P99Ms": 299.289,
+        "MinMs": 54.248,
+        "MaxMs": 1011.723
+      },
+      "first50": {
+        "Samples": 50,
+        "MedianMs": 59.886,
+        "P95Ms": 75.173,
+        "P99Ms": 217.003,
+        "MinMs": 54.524,
+        "MaxMs": 217.003
+      },
+      "last50": {
+        "Samples": 50,
+        "MedianMs": 66.094,
+        "P95Ms": 89.264,
+        "P99Ms": 93.137,
+        "MinMs": 58.857,
+        "MaxMs": 93.137
+      }
+    },
+    "correctionWrite": {
+      "Samples": 117,
+      "MedianMs": 5.457,
+      "P95Ms": 12.37,
+      "P99Ms": 208.065,
+      "MinMs": 3.584,
+      "MaxMs": 284.695
+    },
+    "asOfNowFenced": {
+      "Samples": 2000,
+      "MedianMs": 2.655,
+      "P95Ms": 6.241,
+      "P99Ms": 18.996,
+      "MinMs": 1.197,
+      "MaxMs": 97.944
+    },
+    "asOfNowNaive": {
+      "Samples": 2000,
+      "MedianMs": 1.604,
+      "P95Ms": 2.393,
+      "P99Ms": 3.068,
+      "MinMs": 0.98,
+      "MaxMs": 29.547
+    },
+    "asOfPinnedKnownTime": {
+      "Samples": 2000,
+      "MedianMs": 1.664,
+      "P95Ms": 2.362,
+      "P99Ms": 2.935,
+      "MinMs": 1.111,
+      "MaxMs": 33.641
+    },
+    "reportRead12Series": {
+      "Samples": 500,
+      "MedianMs": 2.216,
+      "P95Ms": 3.02,
+      "P99Ms": 3.533,
+      "MinMs": 1.576,
+      "MaxMs": 6.733
+    },
+    "contentionFenced": {
+      "Reads": {
+        "Samples": 2090,
+        "MedianMs": 8.911,
+        "P95Ms": 15.853,
+        "P99Ms": 21.159,
+        "MinMs": 2.275,
+        "MaxMs": 32.191
+      },
+      "Writes": {
+        "Samples": 520,
+        "MedianMs": 8.94,
+        "P95Ms": 15.89,
+        "P99Ms": 21.198,
+        "MinMs": 5.644,
+        "MaxMs": 31.129
+      },
+      "ReadsPerSecond": 418,
+      "WritesPerSecond": 104
+    },
+    "contentionNaive": {
+      "Reads": {
+        "Samples": 7196,
+        "MedianMs": 2.458,
+        "P95Ms": 4.41,
+        "P99Ms": 9.109,
+        "MinMs": 1.442,
+        "MaxMs": 38.005
+      },
+      "Writes": {
+        "Samples": 442,
+        "MedianMs": 10.043,
+        "P95Ms": 18.446,
+        "P99Ms": 29.998,
+        "MinMs": 6.488,
+        "MaxMs": 48.477
+      },
+      "ReadsPerSecond": 1439.2,
+      "WritesPerSecond": 88.4
+    },
+    "asOfPlan": {
+      "nodeType": "Bitmap Heap Scan",
+      "index": "no_bitemporal_overlap",
+      "sharedHitBlocks": 6,
+      "executionMs": 0.807
+    }
+  }
+}
